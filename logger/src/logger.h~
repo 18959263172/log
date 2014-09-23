@@ -1,0 +1,43 @@
+#ifndef __LOG__
+#define __LOG__
+
+#include<stdio.h>
+
+#ifdef WIN32
+//brief  support WIN32 
+#include<windows.h>
+
+#include<winuser.h>
+
+#endif
+
+#define DEBUG 1
+
+#ifdef _LINUX
+//brief support LINUX
+
+#include<pthread.h>
+
+#endif
+
+struct log_interface
+{
+   char *stdbuf;
+  int void_flag;
+  FILE* file;
+  int freq_ms;
+};
+
+typedef  struct log_interface logfile;
+
+int open_log( char *path);
+
+int write_log();
+
+int start_log();
+
+int clean_log( char *path);
+
+extern logfile routes;
+
+#endif
