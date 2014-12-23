@@ -4,6 +4,11 @@
 */
 #include"logger.h"
 
+#ifdef WIN32
+CRITICAL_SECTION g_cs;
+
+#endif
+
 logfile routes;
 
 int open_log(char *buf)
@@ -27,14 +32,31 @@ int write_log()
     }
   else
     {
-      if(fputs("hello world \r\n\0",routes.file)==0)
+      if(routes.que!=NULL)
 	{
+	  if(fputs(routes.que->log,routes.file))
+	  {
+#ifdef WIN32
 	  EnterCriticalSection(&g_cs);
 	  routes.void_flag=1;
+	  routes.que=routes.que->next;
+	  //go out queue 
 	  return 1;
 	  LeaveCriticalSection(&g_cs);
+	  }
+	  else return 0; 
+#endif
+
+#ifdef _LINUX
+	  
+#endif
 	}
-      else return 0;
+      else
+	{
+#ifdef WIN32
+	
+#endif
+	}
     }
 }
 
@@ -46,8 +68,6 @@ int clean_log( char * buf)
 }  
 
 #ifdef WIN32
-
-
 
 HANDLE handle;
 
@@ -72,32 +92,32 @@ void CALLBACK  TimerProc(HWND hwnd,UINT uMsg,UINT idEvent,DWORD dwTime)
 #ifndef __AFX_H__
 DWORD WINAPI Fun(LPVOID lpParamter)
 {
-	BOOL bRet;
-	MSG msg;
-	int x;
-	int timerid = SetTimer(NULL,111,3000,TimerProc);
-	if(routes.freq_ms>0)
+  BOOL bRet;
+  MSG msg;
+  int x;
+  int timerid = SetTimer(NULL,111,3000,TimerProc);
+  if(routes.freq_ms>0)
+    {
+      if(SetTimer(NULL,10,routes.freq_ms,&TimerProc))
+	x=-1;
+    }
+  PeekMessage(&msg,NULL,WM_USER,WM_USER,PM_NOREMOVE);
+  while ((bRet = GetMessage(&msg,NULL,0,0))!=0)
+    {
+      if (bRet == -1)
 	{
-	  if(SetTimer(NULL,10,routes.freq_ms,&TimerProc))
-	    x=-1;
+	  printf("Error:the thread will quit,error id is %d/n",GetLastError());
+	  break;
 	}
-	PeekMessage(&msg,NULL,WM_USER,WM_USER,PM_NOREMOVE);
-	while ((bRet = GetMessage(&msg,NULL,0,0))!=0)
-	  {
-	    if (bRet == -1)
-	      {
-		printf("Error:the thread will quit,error id is %d/n",GetLastError());
-		break;
-	      }
-	    else
-	      {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	      }
-	  }
-	KillTimer(NULL,timerid);
-	printf("thread end here/n");
-	return 0;
+      else
+	{
+	  TranslateMessage(&msg);
+	  DispatchMessage(&msg);
+	}
+    }
+  KillTimer(NULL,timerid);
+  printf("thread end here/n");
+  return 0;
 }
 #else
 //USE MFC,you can attach the interface to the WINDOW's callback function
@@ -111,7 +131,9 @@ int start_log()
 {
 #ifdef WIN32 
   
-  InitializeCriticalSection(&gs);
+  routes.que=(struct logstr*)malloc(sizeof(struct logstr)*MAX_NUM);
+
+  routes.que->log=(char* )malloc(sizeof(struct logstr));
   
   handle = CreateThread(NULL, 0, Fun, NULL, 0, NULL);
   
@@ -127,4 +149,35 @@ int start_log()
 int stop_log()
 {
   CloseHandle(handle);
+}
+
+int queue_in(char *c_str)
+{
+  struct logstr *ins;
+  #ifdef WIN32
+  InitializeCriticalSection(&g_cs);
+  
+  EnterCriticalSection(&g_cs);
+
+  routes.que=(struct logstr* )malloc(sizeof(struct logstr));
+
+  routes.que->next=(struct logstr *)malloc(sizeof(struct logstr));
+
+  routes.que->prev=(struct logstr *)malloc(sizeof(struct logstr));
+  
+  ins=routes.que->next;
+  
+  ins->prev=routes.que;
+  
+  ins->log=(char *)malloc(strlen(c_str));
+  
+  memcpy(ins->log,c_str,strlen(c_str));
+  
+  ins->n=strlen(c_str);
+  
+  ins->prev=routes.que;
+
+  LeaveCriticalSection(&g_cs);
+  
+#endif
 }

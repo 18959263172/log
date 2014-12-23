@@ -23,18 +23,25 @@
 
 #define MAX_NUM 100
 
-struct  logstr
+
+
+struct logstr
 {
+  struct logstr* next;
   char *log;
-}
+  int n;
+  struct logstr* prev;
+};
 
 struct log_interface
 {
   int log_num;
-  struct logstr *stdbuf;
+  struct logstr *que;
   int void_flag;
   FILE* file;
   int freq_ms;
+  int i_pos;
+  int i_pos_p;
 };
 
 typedef  struct log_interface logfile;
@@ -50,6 +57,8 @@ int clean_log( char *path);
 int stop_log();
 
 int queue_in(char *buf);
+
+int init_que();
 
 extern logfile routes;
 

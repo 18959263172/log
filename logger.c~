@@ -1,53 +1,170 @@
- #include"logger.h"
+/**file logger.c the inplement of this module
+*
+*
+*/
+#include"logger.h"
 
-logfile interface;
+#ifdef WIN32
 
-bool open_log(unsigned char *buf)
+CRITICAL_SECTION g_cs;
+
+#endif
+
+logfile routes;
+
+int open_log(char *buf)
 {
-  if(interface.file=fopen(buf,"a+"))
+  if(routes.file=fopen(buf,"a+"))
     {
       
     }
   else
     {
-      printf("error open file");
-    }
+      printf("error open file \r\n");
+	}
+  return 1;
 }
 
-bool write_log()
+int write_log()
 {
-  if()
+
+  if(routes.void_flag)
     {
-      reutrn 0;
+      return 0;
     }
   else
     {
-      fputs(interface.stdbuf,interface.file,);
-      return 1;
-  }
+      if(fputs(routes.que[i_pos_p].log,routes.file)==0)
+	{
+	  
+#ifdef WIN32
+	  EnterCriticalSection(&g_cs);
+	  
+	  i_pos_p++;
+	  
+	  if(i_pos_p==routes.i_pos+1) 
+	    {
+	      routes.i_pos=0;
+	      routes.i_pos_p=0;
+	    }
+
+	  routes.void_flag=1;
+	  LeaveCriticalSection(&g_cs);
+	  
+	  return 1;
+
+#endif
+#ifdef _LINUX
+	  
+#endif
+	}
+      else return 0;
+    }
 }
 
-bool clean_log(unsigned char * buf)
+int clean_log( char * buf)
 {
   if(!remove(buf))
     return 1;
   return 0; 
 }  
+
 #ifdef WIN32
 
-DOWROD WINAPI ThreadFunc(LPVOID pM)
+HANDLE handle;
+
+void CALLBACK  TimerProc(HWND hwnd,UINT uMsg,UINT idEvent,DWORD dwTime)
 {
-  write_log();
+  if(write_log())
+  {
+#if DEBUG
+	  printf("open data ok! \r\n");
+#endif
+  }
+  else
+  {
+#if DEBUG
+    printf("write data error \r\n");
+#endif
+    
+  }
 }
+
+//brief not use MFC you can use this for console 
+#ifndef __AFX_H__
+DWORD WINAPI Fun(LPVOID lpParamter)
+{
+  BOOL bRet;
+  MSG msg;
+  int x;
+  int timerid = SetTimer(NULL,111,3000,TimerProc);
+  if(routes.freq_ms>0)
+    {
+      if(SetTimer(NULL,10,routes.freq_ms,&TimerProc))
+	x=-1;
+    }
+  PeekMessage(&msg,NULL,WM_USER,WM_USER,PM_NOREMOVE);
+  while ((bRet = GetMessage(&msg,NULL,0,0))!=0)
+    {
+      if (bRet == -1)
+	{
+	  printf("Error:the thread will quit,error id is %d/n",GetLastError());
+	  break;
+	}
+      else
+	{
+	  TranslateMessage(&msg);
+	  DispatchMessage(&msg);
+	}
+    }
+  KillTimer(NULL,timerid);
+  printf("thread end here/n");
+  return 0;
+}
+#else
+//USE MFC,you can attach the interface to the WINDOW's callback function
+//in MFC you should add a callback function on message WM_TIMER
 
 #endif
 
-bool start_log(logfile *log)
+#endif
+
+int start_log()
 {
 #ifdef WIN32 
   
+  routes.que=(struct logstr*)malloc(sizeof(struct logstr)*MAX_NUM);
+    
+  InitializeCriticalSection(&g_cs);
   
+  handle = CreateThread(NULL, 0, Fun, NULL, 0, NULL);
+  
+  WaitForSingleObject(handle, INFINITE);
+
+  //brief wait until the thread is end
+  return 0;
+ 
 #endif
+}
 
 
+int stop_log()
+{
+  CloseHandle(handle);
+}
+
+int queue_in(char *c_str)
+{
+  #ifdef WIN32
+  EnterCriticalSection(&g_cs);
+
+  memcpy(routes.que[i_pos].log,str,strlen(c_str));
+  
+  routes.que[i_pos].n=strlen(c_str);
+
+  routes.i_pos++;
+
+  LeaveCriticalSection(&g_cs);
+
+  #endif
 }

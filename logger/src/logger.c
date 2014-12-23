@@ -6,16 +6,15 @@
 
 #ifdef WIN32
 CRITICAL_SECTION g_cs;
-
 #endif
 
 logfile routes;
 
 int open_log(char *buf)
 {
-  if(routes.file=fopen(buf,"a+"))
+  if(routes.file=fopen(buf,"a"))
     {
-      
+      fseek(routes.file,0,SEEK_SET);
     }
   else
     {
@@ -26,21 +25,40 @@ int open_log(char *buf)
 
 int write_log()
 {
-  if(routes.void_flag)
-    {
-      return 0;
-    }
-  else
-    {
-      if(fputs("hello world \r\n\0",routes.file)==0)
+	struct logstr *garbage ;
+
+	if(routes.que!=NULL)
 	{
+	  if(fputs(routes.que->log,routes.file)!=EOF)
+	  {
+		fflush(routes.file);
+#ifdef WIN32
 	  EnterCriticalSection(&g_cs);
 	  routes.void_flag=1;
-	  return 1;
+	  garbage=routes.que;	 
+	  routes.que=routes.que->next;
+	  free(garbage);
 	  LeaveCriticalSection(&g_cs);
+	  //go out queue 
+	  return 1;
+	  }
+	  else
+	{
+		//fclose(routes.file);
+		return 0;
 	}
-      else return 0;
-    }
+#endif
+
+#ifdef _LINUX
+	  
+#endif
+	}
+      else
+	{
+#ifdef WIN32
+	return 0;
+#endif
+	}
 }
 
 int clean_log( char * buf)
@@ -51,8 +69,6 @@ int clean_log( char * buf)
 }  
 
 #ifdef WIN32
-
-
 
 HANDLE handle;
 
@@ -69,7 +85,6 @@ void CALLBACK  TimerProc(HWND hwnd,UINT uMsg,UINT idEvent,DWORD dwTime)
 #if DEBUG
     printf("write data error \r\n");
 #endif
-    
   }
 }
 
@@ -80,10 +95,10 @@ DWORD WINAPI Fun(LPVOID lpParamter)
   BOOL bRet;
   MSG msg;
   int x;
-  int timerid = SetTimer(NULL,111,3000,TimerProc);
+  int timerid ;
   if(routes.freq_ms>0)
     {
-      if(SetTimer(NULL,10,routes.freq_ms,&TimerProc))
+      if(timerid=SetTimer(NULL,1000,routes.freq_ms,&TimerProc))
 	x=-1;
     }
   PeekMessage(&msg,NULL,WM_USER,WM_USER,PM_NOREMOVE);
@@ -111,35 +126,66 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 #endif
 
 #endif
-
 int start_log()
 {
 #ifdef WIN32 
-  
-  routes.stdbuf=(struct log_interface*)malloc(sizeof(struct log_interface)*MAX_NUM);
-
-  InitializeCriticalSection(&g_cs);
-  
-  handle = CreateThread(NULL, 0, Fun, NULL, 0, NULL);
-  
+  handle = CreateThread(NULL, 0, Fun, NULL, 0, NULL);  
   WaitForSingleObject(handle, INFINITE);
-
   //brief wait until the thread is end
   return 0;
-  
 #endif
 }
-
 
 int stop_log()
 {
   CloseHandle(handle);
 }
 
-int queue_in()
+int queue_in(char *c_str)
 {
+  struct logstr *ins,*prev;
+#ifdef WIN32
+  
   EnterCriticalSection(&g_cs);
   
+  ins=routes.que;
+
+  while(ins->next!=NULL)
+  {
+	ins=ins->next;
+  }
+  prev=ins;
+
+  ins->next=(struct logstr* )malloc(sizeof(struct logstr));
   
+  ins=ins->next;
+
+  ins->prev=prev;
+  
+  ins->log=(char *)malloc(strlen(c_str)+1);   //fputs should add a /0 in the end of the file
+  
+  memcpy(ins->log,(char *)c_str,strlen(c_str)+1);  //fputs should add a /0 in the end of the file
+
+  ins->n=strlen(c_str);
+
+  ins->next=NULL;
+
   LeaveCriticalSection(&g_cs);
+#endif
+}
+
+int init_que()
+{
+	InitializeCriticalSection(&g_cs);
+
+	routes.que=(struct logstr*)malloc(sizeof(struct logstr));
+
+	routes.que->log=(char* )malloc(MAX_NUM);
+
+	routes.que->n=sizeof(struct logstr);
+
+	routes.que->next=NULL;
+
+	memcpy((char *)routes.que->log,"first log",sizeof("first log"));
+
 }

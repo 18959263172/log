@@ -1,6 +1,7 @@
 #ifndef __LOG__
 #define __LOG__
 
+#include<malloc.h>
 #include<stdio.h>
 
 #ifdef WIN32
@@ -11,6 +12,8 @@
 
 #endif
 
+#define DEBUG 1
+
 #ifdef _LINUX
 //brief support LINUX
 
@@ -18,22 +21,41 @@
 
 #endif
 
-extern logfile interface;
+#define MAX_NUM 100
 
-typedef struct log_interface
+
+struct logstr
 {
-  unsigned char *stdbuf;
-  bool void_flag;
+  struct logstr *next;
+  char *log;
+  int n;
+};
+
+struct log_interface
+{
+  int log_num;
+  struct logstr *que;
+  int void_flag;
   FILE* file;
   int freq_ms;
-}logfile;
+  int i_pos;
+  int i_pos_p;
+};
 
-bool open_log(unsigned char *path);
+typedef  struct log_interface logfile;
 
-bool write_log();
+int open_log( char *path);
 
-bool start_log();
+int write_log();
 
-bool clean_log(unsigned char *path);
+int start_log();
+
+int clean_log( char *path);
+
+int stop_log();
+
+int queue_in(char *buf);
+
+extern logfile routes;
 
 #endif

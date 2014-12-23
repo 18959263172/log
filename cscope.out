@@ -1,0 +1,603 @@
+cscope 16 d:\myproject\log"               0000002791
+	@logger.c
+
+5 
+	~"loggî.h
+"
+
+7 #ifde‡
+WIN32
+
+
+8 
+CRITICAL_SECTION
+ 
+	gg_cs
+;
+
+12 
+logfûe
+ 
+	grouãs
+;
+
+14 
+	$›í_log
+(*
+buf
+)
+
+16 if(
+rouãs
+.
+fûe
+=
+	`f›í
+(
+buf
+,"a+"))
+
+22 
+	`¥ötf
+("error open file \r\n");
+
+25 
+	}
+}
+
+27 
+	$wrôe_log
+()
+
+29 if(
+rouãs
+.
+void_Êag
+)
+
+35 if(
+	`Âuts
+(
+rouãs
+.
+que
+[
+i_pos_p
+].
+log
+,rouãs.
+fûe
+)==0)
+
+38 #ifde‡
+WIN32
+
+
+39 
+	`E¡îCrôiˇlSe˘i⁄
+(&
+g_cs
+);
+
+41 
+i_pos_p
+++;
+
+43 if(
+i_pos_p
+==
+rouãs
+.
+i_pos
++1)
+
+45 
+rouãs
+.
+i_pos
+=0;
+
+46 
+rouãs
+.
+i_pos_p
+=0;
+
+49 
+rouãs
+.
+void_Êag
+=1;
+
+50 
+	`LóveCrôiˇlSe˘i⁄
+(&
+g_cs
+);
+
+55 #ifde‡
+_LINUX
+
+
+61 
+	}
+}
+
+63 
+	$˛ón_log
+–* 
+buf
+)
+
+65 if(!
+	`ªmove
+(
+buf
+))
+
+68 
+	}
+}
+
+70 #ifde‡
+WIN32
+
+
+74 
+HANDLE
+ 
+	gh™dÀ
+;
+
+76 
+CALLBACK
+ 
+	$TimîProc
+(
+HWND
+ 
+hwnd
+,
+UINT
+ 
+uMsg
+,UINT 
+idEvít
+,
+DWORD
+ 
+dwTime
+)
+
+78 if(
+	`wrôe_log
+())
+
+80 #i‡
+DEBUG
+
+
+81 
+	`¥ötf
+("open data ok! \r\n");
+
+86 #i‡
+DEBUG
+
+
+87 
+	`¥ötf
+("write dataÉrror \r\n");
+
+91 
+	}
+}
+
+94 #i‚de‡
+__AFX_H__
+
+
+95 
+DWORD
+ 
+WINAPI
+ 
+	$Fun
+(
+LPVOID
+ 
+ÕP¨amãr
+)
+
+97 
+BOOL
+ 
+bRë
+;
+
+98 
+MSG
+ 
+msg
+;
+
+99 
+x
+;
+
+100 
+timîid
+ = 
+	`SëTimî
+(
+NULL
+,111,3000,
+TimîProc
+);
+
+101 if(
+rouãs
+.
+‰eq_ms
+>0)
+
+103 if(
+	`SëTimî
+(
+NULL
+,10,
+rouãs
+.
+‰eq_ms
+,&
+TimîProc
+))
+
+104 
+x
+=-1;
+
+106 
+	`PìkMesßge
+(&
+msg
+,
+NULL
+,
+WM_USER
+,WM_USER,
+PM_NOREMOVE
+);
+
+107 (
+bRë
+ = 
+	`GëMesßge
+(&
+msg
+,
+NULL
+,0,0))!=0)
+
+109 i‡(
+bRë
+ == -1)
+
+111 
+	`¥ötf
+("Eº‹:thêthªad wû»quô,îr‹ id i†%d/n",
+	`GëLa°Eº‹
+());
+
+116 
+	`Tøn¶©eMesßge
+(&
+msg
+);
+
+117 
+	`Di•©chMesßge
+(&
+msg
+);
+
+120 
+	`KûlTimî
+(
+NULL
+,
+timîid
+);
+
+121 
+	`¥ötf
+("threadÉnd here/n");
+
+123 
+	}
+}
+
+132 
+	$°¨t_log
+()
+
+134 #ifde‡
+WIN32
+
+
+136 
+rouãs
+.
+que
+=(
+log°r
+*)
+	`mÆloc
+((log°r)*
+MAX_NUM
+);
+
+138 
+	`InôülizeCrôiˇlSe˘i⁄
+(&
+g_cs
+);
+
+140 
+h™dÀ
+ = 
+	`Cª©eThªad
+(
+NULL
+, 0, 
+Fun
+, NULL, 0, NULL);
+
+142 
+	`WaôF‹SögÀObje˘
+(
+h™dÀ
+, 
+INFINITE
+);
+
+148 
+	}
+}
+
+151 
+	$°›_log
+()
+
+153 
+	`Clo£H™dÀ
+(
+h™dÀ
+);
+
+154 
+	}
+}
+
+156 
+	$queue_ö
+(*
+c_°r
+)
+
+158 #ifde‡
+WIN32
+
+
+159 
+	`E¡îCrôiˇlSe˘i⁄
+(&
+g_cs
+);
+
+161 
+	`mem˝y
+(
+rouãs
+.
+que
+[
+i_pos
+].
+log
+,
+°r
+,
+	`°æí
+(
+c_°r
+));
+
+163 
+rouãs
+.
+que
+[
+i_pos
+
+
+164 ].
+n
+=
+	`°æí
+(
+c_°r
+);
+
+166 
+rouãs
+.
+i_pos
+++;
+
+168 
+	`LóveCrôiˇlSe˘i⁄
+(&
+g_cs
+);
+
+171 
+	}
+}
+
+	@logger.h
+
+1 #i‚de‡
+__LOG__
+
+
+2 
+	#__LOG__
+
+
+	)
+
+4 
+	~<mÆloc.h
+>
+
+5 
+	~<°dio.h
+>
+
+7 #ifde‡
+WIN32
+
+
+9 
+	~<wödows.h
+>
+
+11 
+	~<wöu£r.h
+>
+
+15 
+	#DEBUG
+ 1
+
+	)
+
+17 #ifde‡
+_LINUX
+
+
+20 
+	~<±hªad.h
+>
+
+24 
+	#MAX_NUM
+ 100
+
+	)
+
+27 
+	slog°r
+
+
+29 
+log°r
+ *
+	m√xt
+;
+
+30 *
+	mlog
+;
+
+31 
+	mn
+;
+
+34 
+	slog_öãrÁ˚
+
+
+36 
+	mlog_num
+;
+
+37 
+log°r
+ *
+	mque
+;
+
+38 
+	mvoid_Êag
+;
+
+39 
+FILE
+* 
+	mfûe
+;
+
+40 
+	m‰eq_ms
+;
+
+41 
+	mi_pos
+;
+
+42 
+	mi_pos_p
+;
+
+45 
+log_öãrÁ˚
+ 
+	tlogfûe
+;
+
+47 
+›í_log
+–*
+∑th
+);
+
+49 
+wrôe_log
+();
+
+51 
+°¨t_log
+();
+
+53 
+˛ón_log
+–*
+∑th
+);
+
+55 
+°›_log
+();
+
+57 
+queue_ö
+(*
+buf
+);
+
+59 
+logfûe
+ 
+rouãs
+;
+
+	@
+1
+.
+0
+2
+18
+logger.c
+logger.h

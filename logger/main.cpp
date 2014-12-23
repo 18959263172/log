@@ -16,16 +16,19 @@ extern "C"
 
 int main(int argc, TCHAR* argv[], TCHAR* envp[])
 {
-	char *test="hello \r\n\0";
 
 	open_log("d:\\test.log");
 	
-	routes.void_flag=0;
+	routes.freq_ms=200;
 
-	routes.freq_ms=1000;
+	init_que();
 
-	routes.stdbuf=test;
-	
+	queue_in("hfffh\r\n\0");
+
+	queue_in("fff\r\n\0");
+
+	queue_in("ffffirst\r\n\0");
+
 	start_log();
 		
 	return 1;
