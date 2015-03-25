@@ -62,7 +62,7 @@ int write_log()
     }
 }
 
-int clean_log( char * buf)
+int clean_( char * buf)
 {
   if(!remove(buf))
     return 1;
@@ -78,7 +78,7 @@ void CALLBACK  TimerProc(HWND hwnd,UINT uMsg,UINT idEvent,DWORD dwTime)
   if(write_log())
   {
 #if DEBUG
-	  printf("open data ok! \r\n");
+    printf("open data ok! \r\n");
 #endif
   }
   else

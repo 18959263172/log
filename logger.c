@@ -5,11 +5,8 @@
 #include"logger.h"
 
 #ifdef WIN32
-
 CRITICAL_SECTION g_cs;
-
 #endif
-
 logfile routes;
 
 int open_log(char *buf)
